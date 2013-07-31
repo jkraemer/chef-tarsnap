@@ -8,7 +8,7 @@
 include_recipe "build-essential"
 
 tarsnap_bin = "/usr/local/bin/tarsnap"
-tarsnap_user = Chef::EncryptedDataBagItem.load("tarsnap", "user") 
+#tarsnap_user = Chef::EncryptedDataBagItem.load("tarsnap", "user") 
 
 
 def generate_cron_interval(interval)

@@ -1,14 +1,19 @@
 #!/bin/bash
 TARSNAP=<%= @tarsnap_bin %>
 LOGFILE=<%= @node[:tarsnap][:backup][:log] %>
-KEYFILE=<%= @node[:tarsnap][:private_key] %>
+KEYFILE=<%= @node[:tarsnap][:conf][:key_file] %>
 DATE=`date <%= @interval %>`
 DELETEDATE=`date <%= @retention %>`
 
-echo "Deleting backup for $DELETEDATE" >> $LOGFILE
-$TARSNAP --keyfile $KEYFILE -d -f <%= @node[:tarsnap][:backup][:name] %>-$DELETEDATE
-echo "Delete complete for $DELETEDATE" >> $LOGFILE
+#echo "Deleting backup for $DELETEDATE" >> $LOGFILE
+#$TARSNAP --keyfile $KEYFILE -d -f <%= @node[:tarsnap][:backup][:name] %>-$DELETEDATE
+#echo "Delete complete for $DELETEDATE" >> $LOGFILE
+
+<% if @node[:tarsnap][:backup][:exec_before] %>
+  echo "executing before hook..."
+  <%= @node[:tarsnap][:backup][:exec_before] %>
+<% end %>
 
 echo "Beginning backup for $DATE" >> $LOGFILE
-$TARSNAP -c -f <%= @node[:tarsnap][:backup][:name] %>-$DATE <% @node[:tarsnap][:backup][:directories].each do |bd| %><%= bd %> <% end %>
+$TARSNAP --configfile /usr/local/etc/tarsnap.conf --keyfile $KEYFILE -c -f <%= @node[:tarsnap][:backup][:name] %>-$DATE <% @node[:tarsnap][:backup][:directories].each do |bd| %><%= bd %> <% end %>
 echo "Backup complete for $DATE" >> $LOGFILE
