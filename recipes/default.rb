@@ -134,8 +134,21 @@ if node[:tarsnap][:use_backup_script]
     end
 end
 
+if node[:tarsnap][:install_only]
 
-if not node[:tarsnap][:install_only]
+  dbi = data_bag_item('machines', node[:fqdn].gsub('.', '_'))
+  if dbi && key = dbi['tarsnap']
+    file node[:tarsnap][:conf][:key_file] do
+      owner 'root'
+      group 'root'
+      mode 0600
+      content key
+    end
+  else
+    STDERR.puts "no tarsnap key found for #{node[:fqdn]}, please create one and add it to machines/#{node[:fqdn].gsub '.', '_'}.json"
+  end
+
+else
     # create initial private key and register box with tarsnap
     bash "create_tarsnap_private_key" do
         not_if do
